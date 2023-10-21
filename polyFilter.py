@@ -6,10 +6,9 @@ import matplotlib.pyplot as plt
 def fitPoly(x, y, O, graphOut = False):
     if x.size > O+4:
         z = np.polyfit(x,y,O)
-        print(z)
+        #print(z)
     else:
         z = np.zeros(O+1)
-        print('y used for fit ', y)
         z[-1] = np.mean(y)
 
     if graphOut:
@@ -24,7 +23,7 @@ def fitPoly(x, y, O, graphOut = False):
 
 def polyPred(x,y,O, graphOut = False):
     if y.size<2: #if y only 1 value predict same value
-        return x
+        return x, 0, 0
     z = fitPoly(x,y,O, graphOut = False)
     p = np.poly1d(z)
     xPred = 2*x[-1]-x[-2]
@@ -37,12 +36,14 @@ def polyPred(x,y,O, graphOut = False):
 
         plt.plot(x, y)
         plt.plot(xPlot, p(xPlot))
-    return yPred
+    return (yPred, z[-3], z[-2])
 
 def polyFilter(x,y,O,N):
     yFiltered = np.zeros(x.size)
+    v = np.zeros(x.size)
+    a= np.zeros(x.size)
     for k in range(x.size):
         istart = max([0,k-N])
-        yFiltered[k]=polyPred(x[istart:k+1],y[istart:k+1],O)
+        yFiltered[k], v[k], a[k] = polyPred(x[istart:k+1],y[istart:k+1],O)
 
-    return yFiltered
+    return yFiltered, v, a
